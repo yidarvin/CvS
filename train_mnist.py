@@ -47,6 +47,8 @@ validation   = True
 learning_rate = 1e-4
 num_epochs = 100
 
+if not isdir(path_save):
+    mkdir(path_save)
 
 # Create the Dataloaders
 dataloaders = create_dataloaders_mnist(path_data,batch_size,img_size,num_examples,dataset_size,validation)
