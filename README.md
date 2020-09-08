@@ -1,0 +1,2 @@
+# CvS
+Classification via Segmentation (CvS) is a repository for small data classification.  Classification problems in computer vision often require massive amounts of data, such as thousands of images per class.  However, segmentation often works with a few images.  By utilizing the dense prediction structure of segmentation architectures, the CvS training paradigm is able to achieve good classification accuracies given few images per class without the need for transfer learning on a different dataset.
