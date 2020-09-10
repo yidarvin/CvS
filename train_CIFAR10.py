@@ -45,7 +45,7 @@ img_size     = 128
 num_examples = 10
 dataset_size = 1000
 validation   = True
-learning_rate = 1e-6
+learning_rate = 3e-4
 num_epochs = 100
 
 if not isdir(path_save):

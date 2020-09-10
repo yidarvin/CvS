@@ -47,6 +47,7 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     criterion = nn.CrossEntropyLoss(reduction='none')
     model = nn.DataParallel(model.cuda())
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.0)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
     best_acc = 0.0
 
     for epoch in range(num_epochs):
@@ -78,7 +79,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
 
             if verbose:
                 print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
-
+            if phase == 'train':
+                scheduler.step()
             if phase == 'val':
                 if epoch_acc >= best_acc:
                     best_acc = epoch_acc

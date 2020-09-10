@@ -32,7 +32,7 @@ from engine.trainer import *
 # EXPERIMENT SPECIFIC (SHOULD NOT CHANGE)
 in_chan = 1
 out_chan = 11
-name_exp = 'MNIST'
+name_exp = 'MNIST-1e1'
 
 # COMPUTER SPECIFIC
 path_data = '/home/Data/MNIST'
@@ -44,7 +44,7 @@ img_size     = 112
 num_examples = 10
 dataset_size = 100
 validation   = True
-learning_rate = 2e-5
+learning_rate = 3e-4
 num_epochs = 100
 
 if not isdir(path_save):
