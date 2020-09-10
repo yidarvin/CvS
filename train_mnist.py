@@ -35,11 +35,11 @@ out_chan = 11
 name_exp = 'MNIST'
 
 # COMPUTER SPECIFIC
-path_data = '/home/darvin/Data/mnist'
-path_save = '/home/darvin/Models'
+path_data = '/home/Data/MNIST'
+path_save = '/home/Models'
 
 # HYPER PARAMETERS
-batch_size   = 48
+batch_size   = 128
 img_size     = 112
 num_examples = 10
 dataset_size = 100

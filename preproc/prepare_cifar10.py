@@ -28,8 +28,8 @@ def main(args):
 
     urls = [('https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz', 'cifar-10-python.tar.gz'),
             ('https://uofi.box.com/shared/static/8sw0gj6d35zgw1z0isi6jy816r6x0g95.zip', 'cifar-10-smalldata-manualseg.zip')]
-    #for url,filename in urls:
-    #    wget.download(url, join(opts.path_data,filename))
+    for url,filename in urls:
+        wget.download(url, join(opts.path_data,filename))
     for url,filename in urls:
         if filename[-1] == 'z':
             with tarfile.open(join(opts.path_data, filename),'r:gz') as f:

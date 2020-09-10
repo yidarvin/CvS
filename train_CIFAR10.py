@@ -32,20 +32,20 @@ from engine.trainer import *
 # EXPERIMENT SPECIFIC (SHOULD NOT CHANGE)
 in_chan = 3
 out_chan = 11
-name_exp = 'CIFAR10'
+name_exp = 'CIFAR10-1e1'
 
 # COMPUTER SPECIFIC
-path_data='/home/darvin/Data/CIFAR10/cifar-10-smalldata-manualseg'
-path_val='/home/darvin/Data/CIFAR10/cifar-10-batches-py'
-path_save = '/home/darvin/Models'
+path_data='/home/Data/CIFAR10/cifar-10-smalldata-manualseg'
+path_val='/home/Data/CIFAR10/cifar-10-batches-py'
+path_save = '/home/Models'
 
 # HYPER PARAMETERS
-batch_size   = 48
+batch_size   = 128
 img_size     = 128
 num_examples = 10
-dataset_size = 100
+dataset_size = 1000
 validation   = True
-learning_rate = 3e-5
+learning_rate = 1e-6
 num_epochs = 100
 
 if not isdir(path_save):

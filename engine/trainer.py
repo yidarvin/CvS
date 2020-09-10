@@ -34,7 +34,7 @@ def take_one_step(model,X,Y,criterion,phase=None,alpha=1):
             Y_slice = Y_copy[ii,:,:]
             boundary = Y_slice > 0
             boundary = binary_dilation(boundary, iterations=2)
-            weight[ii,:,:] += boundary * 2
+            weight[ii,:,:] += boundary * 0
         loss = torch.mean(loss * torch.from_numpy(weight).float().cuda())
     pred = torch.sum(output,dim=(2,3))
     pred = torch.argmax(pred[:,1:],dim=1) + 1

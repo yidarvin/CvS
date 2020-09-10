@@ -149,8 +149,8 @@ def create_dataloaders_cifar10(path_data='/home/darvin/Data/CIFAR10/cifar-10-sma
                              path_val='/home/darvin/Data/CIFAR10/cifar-10-batches-py',
                              batch_size=48,img_size=128,num_examples=10,dataset_size=100,validation=True):
     data_tr = cifar10SegmentationDataset(path_data, img_size, num_examples,dataset_size,
-                                       transform=transforms.Compose([RandomTurn(),RandomShift(),AddNoise(),ToTensor()]))
-    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=4)
+                                       transform=transforms.Compose([RandomFlip(),RandomRotate(),RandomShift(),AddNoise(),ToTensor()]))
+    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)
     dataloaders = {}
     dataloaders['train'] = loader_tr
     if validation:
@@ -158,6 +158,6 @@ def create_dataloaders_cifar10(path_data='/home/darvin/Data/CIFAR10/cifar-10-sma
         data_va = cifar10ValidationDataset(X_te, Y_te,img_size,
                                            transform=transforms.Compose([ToTensor()]))
 
-        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=4)
+        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=0)
         dataloaders['val'] = loader_va
     return dataloaders
