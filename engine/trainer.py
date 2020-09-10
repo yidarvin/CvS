@@ -22,10 +22,20 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-def take_one_step(model,X,Y,criterion,phase=None):
+def take_one_step(model,X,Y,criterion,phase=None,alpha=1):
+    alpha = np.clip(alpha,0,1)
     with torch.set_grad_enabled(phase == 'train'):
         output = model(X)
-        loss = torch.mean(criterion(output,Y))
+        loss = alpha*criterion(output,Y)
+        loss += (1-alpha)*criterion(output,torch.argmax(output,dim=1))
+        Y_copy = Y.detach().cpu().numpy()
+        weight = np.ones_like(Y_copy)
+        for ii in range(Y.size(0)):
+            Y_slice = Y_copy[ii,:,:]
+            boundary = Y_slice > 0
+            boundary = binary_dilation(boundary, iterations=2)
+            weight[ii,:,:] += boundary * 2
+        loss = torch.mean(loss * torch.from_numpy(weight).float().cuda())
     pred = torch.sum(output,dim=(2,3))
     pred = torch.argmax(pred[:,1:],dim=1) + 1
     gt,_ = torch.max(Y.float().view(Y.shape[0],-1),dim=1)
@@ -74,6 +84,7 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
                     best_acc = epoch_acc
                     if path_save != None:
                         torch.save(model.state_dict(), join(path_save, name_exp + '_best.pth'))
+        print()
 
     if path_save != None:
         torch.save(model.state_dict(), join(path_save, name_exp + '_late.pth'))
