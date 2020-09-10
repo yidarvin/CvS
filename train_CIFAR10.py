@@ -24,34 +24,35 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from data.mnist import *
+from data.cifar10 import *
 from data.transforms import *
 from engine.architectures import *
 from engine.trainer import *
 
 # EXPERIMENT SPECIFIC (SHOULD NOT CHANGE)
-in_chan = 1
+in_chan = 3
 out_chan = 11
-name_exp = 'MNIST'
+name_exp = 'CIFAR10'
 
 # COMPUTER SPECIFIC
-path_data = '/home/darvin/Data/mnist'
+path_data='/home/darvin/Data/CIFAR10/cifar-10-smalldata-manualseg'
+path_val='/home/darvin/Data/CIFAR10/cifar-10-batches-py'
 path_save = '/home/darvin/Models'
 
 # HYPER PARAMETERS
 batch_size   = 48
-img_size     = 112
+img_size     = 128
 num_examples = 10
 dataset_size = 100
 validation   = True
-learning_rate = 2e-5
+learning_rate = 3e-5
 num_epochs = 100
 
 if not isdir(path_save):
     mkdir(path_save)
 
 # Create the Dataloaders
-dataloaders = create_dataloaders_mnist(path_data,batch_size,img_size,num_examples,dataset_size,validation)
+dataloaders = create_dataloaders_cifar10(path_data,path_val,batch_size,img_size,num_examples,dataset_size,validation)
 
 # Create the model
 model = densenet101(in_chan, out_chan, pretrained=False)
