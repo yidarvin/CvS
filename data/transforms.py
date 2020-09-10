@@ -98,6 +98,20 @@ class AddNoise(object):
             X += np.random.randn(X.shape[0],X.shape[1],X.shape[2]) / 100
         return {'X':X, 'Y':Y}
 
+class ColorJitter(object):
+    def __init__(self, brightness=0.03, contrast=0.03, saturation=0.03, hue=0.03):
+        self.brightness = brightness
+        self.contrast = contrast
+        self.saturation = saturation
+        self.hue = hue
+        self.transform = transforms.ColorJitter(brightness, contrast, saturation, hue)
+    def __call__(self, sample):
+        X,Y = sample['X'],sample['Y']
+        X_new = Image.fromarray(np.uint8(128*(X.transpose(1,2,0) + 1)))
+        X_new = self.transform(X_new)
+        X_new = (np.array(X_new).astype(np.float32) / 128 - 1.0).transpose(2,1,0)
+        return {'X':X_new, 'Y':Y}
+        
 class ToTensor(object):
     def __call__(self, sample):
         X,Y = sample['X'], sample['Y']
