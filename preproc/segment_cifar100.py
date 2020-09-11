@@ -46,7 +46,7 @@ def main(args):
 
     if not isdir(opts.path_save):
         mkdir(opts.path_save)
-    for ii in range(10):
+    for ii in range(100):
         path_dir = join(opts.path_save, str(ii))
         if not isdir(path_dir):
             mkdir(path_dir)
@@ -55,7 +55,7 @@ def main(args):
     best_state_dict = torch.load(opts.path_model)
     model.load_state_dict(best_state_dict)
 
-    X,Y,_,_,_ = load_CIFAR10_data(path_data=opts.path_data)
+    X,Y,_,_,_ = load_CIFAR100_data(path_data=opts.path_data)
 
     for ind in range(X.shape[0]):
         img = np.array(X[ind,:,:,:]).transpose(1,2,0) #+ 10*np.random.randn(28,28)

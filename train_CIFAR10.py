@@ -3,7 +3,6 @@ from __future__ import division
 
 import copy
 import glob
-from mnist import MNIST
 import os
 from os import listdir,mkdir,rmdir
 from os.path import join,isdir,isfile
@@ -29,33 +28,49 @@ from data.transforms import *
 from engine.architectures import *
 from engine.trainer import *
 
-# EXPERIMENT SPECIFIC (SHOULD NOT CHANGE)
-in_chan = 3
-out_chan = 11
-name_exp = 'CIFAR10-1e1'
 
-# COMPUTER SPECIFIC
-path_data='/home/Data/CIFAR10/cifar-10-smalldata-manualseg'
-path_val='/home/Data/CIFAR10/cifar-10-batches-py'
-path_save = '/home/Models'
 
-# HYPER PARAMETERS
-num_examples = 10
-img_size     = 128
-batch_size   = int(np.clip(num_examples,4,128))
-dataset_size = 100
-validation   = True
-learning_rate = 1e-6
-num_epochs = 100
+def main(args):
+    """
+    Main function to parse arguments.
+    """
+    # Reading command line arguments into parser.
+    parser = argparse.ArgumentParser(description = "Train On CIFAR10 data.")
 
-if not isdir(path_save):
-    mkdir(path_save)
+    # Filepaths
+    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/CIFAR10/cifar-10-smalldata-manualseg')
+    parser.add_argument("--pVal", dest="path_val", type=str, default='/home/Data/CIFAR10/cifar-10-batches-py')
+    parser.add_argument("--pModel", dest="path_model", type=str, default='/home/Models')
+    parser.add_argument("--name", dest="name", type=str, default='default')
+    parser.add_argument("--numex", dest="num_examples", type=int, default=10)
+    parser.add_argument("--lr", dest="lr", type=np.float32, default=3e-5)
+    parser.add_argument("--epoch", dest="num_epochs", type=int, default=100)
 
-# Create the Dataloaders
-dataloaders = create_dataloaders_cifar10(path_data,path_val,batch_size,img_size,num_examples,dataset_size,validation)
+    # Creating Parser Object
+    opts = parser.parse_args(args[1:])
 
-# Create the model
-model = densenet101(in_chan, out_chan, pretrained=True)
+    if not isdir(opts.path_model):
+        mkdir(opts.path_model)
 
-# Do the training
-model = trainer_CvS(model, dataloaders, path_save, name_exp, learning_rate, num_epochs)
+    in_chan = 3
+    out_chan = 11
+    img_size = 128
+    dataset_size = 100
+    validation   = True
+    batch_size   = int(np.clip(opts.num_examples,4,128))
+    name_exp = opts.path_data.split('\')[-1] + '_' + str(opts.num_examples) + '_' + opts.name
+
+    # Create the Dataloaders
+    dataloaders = create_dataloaders_cifar10(opts.path_data,opts.path_val,
+                                             batch_size,img_size,opts.num_examples,
+                                             dataset_size,validation)
+
+    # Create the model
+    model = densenet101(in_chan, out_chan, pretrained=False)
+
+    # Do the training
+    model = trainer_CvS(model, dataloaders, opts.path_model, name_exp, opts.lr, opts.num_epochs)
+
+
+if __name__ == "__main__":
+    main(sys.argv)
