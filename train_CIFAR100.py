@@ -36,8 +36,8 @@ def main(args):
     parser = argparse.ArgumentParser(description = "Train On CIFAR10 data.")
 
     # Filepaths
-    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/CIFAR10/cifar-100-smalldata-seg10')
-    parser.add_argument("--pVal", dest="path_val", type=str, default='/home/Data/CIFAR10/cifar-100-python')
+    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/CIFAR100/cifar-100-smalldata-seg10')
+    parser.add_argument("--pVal", dest="path_val", type=str, default='/home/Data/CIFAR100/cifar-100-python')
     parser.add_argument("--pModel", dest="path_model", type=str, default='/home/Models')
     parser.add_argument("--name", dest="name", type=str, default='default')
     parser.add_argument("--numex", dest="num_examples", type=int, default=10)

@@ -34,7 +34,7 @@ def main(args):
     Main function to parse arguments.
     """
     # Reading command line arguments into parser.
-    parser = argparse.ArgumentParser(description = "Prepare CIFAR10 data.")
+    parser = argparse.ArgumentParser(description = "Prepare CIFAR100 data.")
 
     # Filepaths
     parser.add_argument("--pData", dest="path_data", type=str, default=None)
