@@ -43,9 +43,9 @@ path_save = '/home/Models'
 num_examples = 10
 img_size     = 128
 batch_size   = int(np.clip(num_examples,4,128))
-dataset_size = 100
+dataset_size = 1000
 validation   = True
-learning_rate = 3e-5
+learning_rate = 3e-4
 num_epochs = 100
 
 if not isdir(path_save):
@@ -55,7 +55,8 @@ if not isdir(path_save):
 dataloaders = create_dataloaders_cifar10(path_data,path_val,batch_size,img_size,num_examples,dataset_size,validation)
 
 # Create the model
-model = densenet101(in_chan, out_chan, pretrained=False)
+#model = densenet101(in_chan, out_chan, pretrained=False)
+model = FPN101(in_chan, out_chan, pretrained=False)
 
 # Do the training
 model = trainer_CvS(model, dataloaders, path_save, name_exp, learning_rate, num_epochs)

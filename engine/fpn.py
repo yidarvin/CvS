@@ -8,7 +8,7 @@ from torch.autograd import Variable
 class Bottleneck(nn.Module):
   expansion = 4
 
-  def __init__(self, in_planes, planes, stride=1, dropout=0.3):
+  def __init__(self, in_planes, planes, stride=1, dropout=0.1):
     super(Bottleneck, self).__init__()
     self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
     self.bn1   = nn.BatchNorm2d(planes)
@@ -35,7 +35,7 @@ class Bottleneck(nn.Module):
     out = F.relu(out)
     return out
 
-def agg_node(in_planes, out_planes, dropout=0.3):
+def agg_node(in_planes, out_planes, dropout=0.1):
   return nn.Sequential(nn.Conv2d(in_planes, in_planes, kernel_size=3, stride=1, padding=1),
                        nn.BatchNorm2d(in_planes),
                        nn.Dropout2d(p=dropout),
@@ -73,7 +73,7 @@ def conv_bn(in_planes, out_planes, kernel_size=3, stride=1, padding=1, dropout=0
                       )
 
 class FPN(nn.Module):
-  def __init__(self, num_blocks=[3,4,23,3], in_chan=3, out_chan=1, dropout=0.3, block=Bottleneck):
+  def __init__(self, num_blocks=[3,4,23,3], in_chan=3, out_chan=1, dropout=0.1, block=Bottleneck):
     super(FPN, self).__init__()
     #num_blocks=[2,2,2,2]
     self.in_planes = 64
@@ -117,8 +117,8 @@ class FPN(nn.Module):
     self.predict2 = nn.Conv2d(128, out_chan, kernel_size=3, stride=1, padding=1)
     self.predict_tot = nn.Conv2d(512, out_chan, kernel_size=3, stride=1, padding=1)
     self.predictT1    = nn.ConvTranspose2d(256, out_chan, kernel_size=16, stride=8, padding=4)
-    self.predictT2    = nn.ConvTranspose2d(1024, out_chan, kernel_size=8, stride=4, padding=2)
-    self.predictT3    = nn.ConvTranspose2d(512, out_chan, kernel_size=4, stride=2, padding=1)
+    self.predictT2    = nn.ConvTranspose2d(256, out_chan, kernel_size=8, stride=4, padding=2)
+    self.predictT3    = nn.ConvTranspose2d(256, out_chan, kernel_size=4, stride=2, padding=1)
     self.predictT4    = nn.ConvTranspose2d(256, out_chan, kernel_size=4, stride=2, padding=1)
 
   def _make_layer(self, block, planes, num_blocks, stride, dropout):
