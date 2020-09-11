@@ -25,7 +25,7 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from data.transforms import *
+from .transforms import *
 
 
 def load_pickle(f):
@@ -63,7 +63,7 @@ def preproc_CIFAR10_img(img,resize=128):
     img = img.transpose(2,0,1)
     return img
 
-def sample_extend_data(images,segs,labels,num_examples=9999999999,dataset_size=1):
+def sample_extend_data_CIFAR10(images,segs,labels,num_examples=9999999999,dataset_size=1):
     images_tr = []
     segs_tr = []
     labels_tr = []
@@ -101,7 +101,7 @@ class cifar10SegmentationDataset(Dataset):
                 self.path_imgs.append(path_img)
                 self.path_segs.append(path_seg)
                 self.labels.append(ii)
-        self.path_imgs,self.path_segs,self.labels = sample_extend_data(self.path_imgs,self.path_segs,self.labels,num_examples,dataset_size)
+        self.path_imgs,self.path_segs,self.labels = sample_extend_data_CIFAR10(self.path_imgs,self.path_segs,self.labels,num_examples,dataset_size)
         self.resize = resize
         self.transform = transform
     def __len__(self):
@@ -145,8 +145,8 @@ class cifar10ValidationDataset(Dataset):
 
         return sample
 
-def create_dataloaders_cifar10(path_data='/home/darvin/Data/CIFAR10/cifar-10-smalldata-manualseg',
-                             path_val='/home/darvin/Data/CIFAR10/cifar-10-batches-py',
+def create_dataloaders_cifar10(path_data='/home/Data/CIFAR10/cifar-10-smalldata-manualseg',
+                             path_val='/home/Data/CIFAR10/cifar-10-batches-py',
                              batch_size=48,img_size=128,num_examples=10,dataset_size=100,validation=True):
     data_tr = cifar10SegmentationDataset(path_data, img_size, num_examples,dataset_size,
                                        transform=transforms.Compose([RandomFlip(),RandomShift(),AddNoise(),ToTensor()]))

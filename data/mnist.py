@@ -24,7 +24,7 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from data.transforms import *
+from .transforms import *
 
 HAND_SELECTED_INDS = (51,8,171,50,131,173,62,42,46,43)
 
