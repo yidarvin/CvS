@@ -12,6 +12,7 @@ from torchvision.transforms import functional as func
 from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 from torchvision.models.segmentation.fcn import FCNHead
 
+from .fpn import *
 
 class densenet101(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
@@ -41,4 +42,11 @@ class FCN50(nn.Module):
         if in_chan != 3:
             self.model.backbone.conv1 = nn.Conv2d(in_chan, 64, kernel_size=7, stride=2, padding=3, bias=False)
     def forward(self, x):
+        return self.model(x)
+
+class FPN101(nn.Module):
+    def __init__(self, in_chan=3, out_chan=2, pretrained=None):
+        super(FPN101, self).__init__()
+        self.model = FPN(in_chan=in_chan, out_chan=out_chan, dropout=0.3)
+    def forward(self,x):
         return self.model(x)
