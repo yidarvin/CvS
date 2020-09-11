@@ -6,6 +6,7 @@ import glob
 import os
 from os import listdir,mkdir,rmdir
 from os.path import join,isdir,isfile
+import sys
 import time
 
 import cv2
@@ -21,6 +22,14 @@ from torch.utils.data import Dataset,DataLoader
 import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
+
+def super_print(path_file, statement):
+    sys.stdout.write(statement + '\n')
+    sys.stdout.flush()
+    f = open(path_file, 'a')
+    f.write(statement + '\n')
+    f.close()
+    return 0
 
 def take_one_step(model,X,Y,criterion,phase=None,alpha=1):
     alpha = np.clip(alpha,0,1)
@@ -46,6 +55,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     since = time.time()
     criterion = nn.CrossEntropyLoss(reduction='none')
     model = nn.DataParallel(model.cuda())
+    if path_save != None:
+        path_log = join(path_save, name_exp + '.txt')
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.0)
     #optimizer = optim.SGD(model.parameters(), lr=learning_rate, weight_decay=1e-4, momentum=0.9)
     #scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
@@ -53,8 +64,12 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
 
     for epoch in range(num_epochs):
         if verbose:
-            print('Epoch {}/{}'.format(epoch, num_epochs - 1))
-            print('-' * 10)
+            if path_save != None:
+                super_print(path_log, 'Epoch {}/{}'.format(epoch, num_epochs - 1))
+                super_print(path_log, '-' * 10)
+            else:
+                print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+                print('-' * 10)
         for phase in dataloaders.keys():
             if phase == 'train':
                 model.train()
@@ -79,7 +94,10 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
             epoch_acc = running_acc / len(dataloaders[phase].dataset)
 
             if verbose:
-                print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+                if path_save != None:
+                    super_print(path_log,'{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+                else:
+                    print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
             #if phase == 'train':
             #    scheduler.step()
             if phase == 'val':
@@ -93,7 +111,11 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
         torch.save(model.state_dict(), join(path_save, name_exp + '_late.pth'))
     time_elapsed = time.time() - since
     if verbose:
-        print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-        print('Best val Acc: {:4f}'.format(best_acc))
+        if path_save != None:
+            print(path_log, 'Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+            print(path_log, 'Best val Acc: {:4f}'.format(best_acc))
+        else:
+            print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+            print('Best val Acc: {:4f}'.format(best_acc))
 
     return model
