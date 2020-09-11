@@ -80,7 +80,7 @@ def create_dataloaders_mnist(path_data='/home/darvin/Data/mnist',batch_size=48,i
     img_tr,lab_tr,img_te,lab_te = load_mnist_data(path_data)
     img_tr,lab_tr = sample_extend_data(img_tr,lab_tr,num_examples,dataset_size)
     data_tr = mnistSegmentationDataset(img_tr, lab_tr, resize=img_size,
-                                       transform=transforms.Compose([RandomTurn(),RandomShift(),AddNoise(),ToTensor()]))
+                                       transform=transforms.Compose([RandomShift(),AddNoise(),ToTensor()]))
     data_va = mnistSegmentationDataset(img_te, lab_te,
                                        transform=transforms.Compose([ToTensor()]))
     loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)

@@ -34,9 +34,9 @@ def take_one_step(model,X,Y,criterion,phase=None,alpha=1):
             Y_slice = Y_copy[ii,:,:]
             boundary = Y_slice > 0
             boundary = binary_dilation(boundary, iterations=2)
-            weight[ii,:,:] += boundary * 0
+            weight[ii,:,:] += boundary * 2
         loss = torch.mean(loss * torch.from_numpy(weight).float().cuda())
-    pred = torch.sum(output,dim=(2,3))
+    pred = torch.sum(F.softmax(output,dim=1),dim=(2,3))
     pred = torch.argmax(pred[:,1:],dim=1) + 1
     gt,_ = torch.max(Y.float().view(Y.shape[0],-1),dim=1)
     acc = torch.mean((pred == gt).float())
@@ -47,7 +47,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     criterion = nn.CrossEntropyLoss(reduction='none')
     model = nn.DataParallel(model.cuda())
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.0)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
+    #optimizer = optim.SGD(model.parameters(), lr=learning_rate, weight_decay=1e-4, momentum=0.9)
+    #scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
     best_acc = 0.0
 
     for epoch in range(num_epochs):
@@ -79,8 +80,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
 
             if verbose:
                 print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
-            if phase == 'train':
-                scheduler.step()
+            #if phase == 'train':
+            #    scheduler.step()
             if phase == 'val':
                 if epoch_acc >= best_acc:
                     best_acc = epoch_acc

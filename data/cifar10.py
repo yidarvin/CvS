@@ -149,7 +149,7 @@ def create_dataloaders_cifar10(path_data='/home/darvin/Data/CIFAR10/cifar-10-sma
                              path_val='/home/darvin/Data/CIFAR10/cifar-10-batches-py',
                              batch_size=48,img_size=128,num_examples=10,dataset_size=100,validation=True):
     data_tr = cifar10SegmentationDataset(path_data, img_size, num_examples,dataset_size,
-                                       transform=transforms.Compose([RandomFlip(),RandomRotate(),RandomShift(),AddNoise(),ToTensor()]))
+                                       transform=transforms.Compose([RandomFlip(),RandomShift(),AddNoise(),ToTensor()]))
     loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)
     dataloaders = {}
     dataloaders['train'] = loader_tr

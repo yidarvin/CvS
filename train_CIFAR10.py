@@ -40,12 +40,12 @@ path_val='/home/Data/CIFAR10/cifar-10-batches-py'
 path_save = '/home/Models'
 
 # HYPER PARAMETERS
-batch_size   = 128
-img_size     = 128
 num_examples = 10
-dataset_size = 1000
+img_size     = 128
+batch_size   = int(np.clip(num_examples,4,128))
+dataset_size = 100
 validation   = True
-learning_rate = 3e-4
+learning_rate = 3e-5
 num_epochs = 100
 
 if not isdir(path_save):
