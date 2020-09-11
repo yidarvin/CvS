@@ -13,6 +13,7 @@ from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 from torchvision.models.segmentation.fcn import FCNHead
 
 from .fpn import *
+from .google import *
 
 class densenet101(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
@@ -48,5 +49,12 @@ class FPN101(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=None):
         super(FPN101, self).__init__()
         self.model = FPN(in_chan=in_chan, out_chan=out_chan, dropout=0.3)
+    def forward(self,x):
+        return self.model(x)
+
+class GoogLe(nn.Module):
+    def __init__(self, in_chan=3, out_chan=2, dropout=0.0):
+        super(GoogLe, self).__init__()
+        self.model = GoogLeNet(in_chan, out_chan, dropout)
     def forward(self,x):
         return self.model(x)
