@@ -26,7 +26,7 @@ from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
 from .transforms import *
-
+from ..utils.tools import *
 
 
 def unpickle(file):
@@ -114,7 +114,7 @@ class cifar100SegmentationDataset(Dataset):
         lab = self.labels[idx]
         seg = cv2.imread(path_seg)[:,:,0]
 
-        img = preproc_CIFAR10_img(img, self.resize)
+        img = prep_torchvision(img, self.resize)
 
         seg = cv2.resize(seg.astype(np.float32), (self.resize,self.resize))
         seg = (seg > 10) * (lab + 1)
@@ -136,7 +136,7 @@ class cifar100ValidationDataset(Dataset):
         return self.X.shape[0]
     def __getitem__(self,idx):
         img = self.X[idx,:,:,:].transpose(1,2,0)
-        img = preproc_CIFAR10_img(img, self.resize)
+        img = prep_torchvision(img, self.resize)
 
         seg = (self.Y[idx] + 1) * np.ones((self.resize,self.resize))
         seg = seg.astype(np.int16)

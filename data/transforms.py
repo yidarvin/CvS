@@ -98,6 +98,19 @@ class AddNoise(object):
             X += np.random.randn(X.shape[0],X.shape[1],X.shape[2]) / 100
         return {'X':X, 'Y':Y}
 
+class IsolateColor(object):
+    def __init__(self, noise_prob=1.0):
+        self.noise_prob = noise_prob
+    def __call__(self, sample):
+        X,Y = sample['X'],sample['Y']
+        if np.random.rand() > self.noise_prob:
+            ind = np.random.choice(X.shape[0])
+            for ii in range(X.shape[0]):
+                if ii != ind:
+                    X[ii,:,:] = 0
+                X *= X.shape[0]
+        return {'X':X, 'Y':Y}
+
 class ColorJitter(object):
     def __init__(self, brightness=0.03, contrast=0.03, saturation=0.03, hue=0.03):
         self.brightness = brightness

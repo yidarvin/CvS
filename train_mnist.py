@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 
+import argparse
 import copy
 import glob
 from mnist import MNIST
@@ -30,6 +31,10 @@ from engine.architectures import *
 from engine.trainer import *
 
 
+def weight_init(m):
+    if isinstance(m, nn.Conv2d):
+        torch.nn.init.xavier_uniform_(m.weight.data)
+
 
 def main(args):
     """
@@ -57,8 +62,8 @@ def main(args):
     img_size = 128
     dataset_size = 100
     validation   = True
-    batch_size   = int(np.clip(opts.num_examples,4,128))
-    name_exp = opts.path_data.split('\')[-1] + '_' + str(opts.num_examples) + '_' + opts.name
+    batch_size   = 128#int(np.clip(opts.num_examples,4,128))
+    name_exp = opts.path_data.split('/')[-1] + '_' + str(opts.num_examples) + '_' + opts.name
 
     # Create the Dataloaders
     dataloaders = create_dataloaders_mnist(opts.path_data,
@@ -67,6 +72,7 @@ def main(args):
 
     # Create the model
     model = densenet101(in_chan, out_chan, pretrained=False)
+    #model.apply(weight_init)
 
     # Do the training
     model = trainer_CvS(model, dataloaders, opts.path_model, name_exp, opts.lr, opts.num_epochs)

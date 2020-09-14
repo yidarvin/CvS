@@ -18,17 +18,18 @@ from .google import *
 class densenet101(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
         super(densenet101, self).__init__()
-        self.model = torchvision.models.segmentation.deeplabv3_resnet101(pretrained=pretrained)
+        self.model = torchvision.models.segmentation.deeplabv3_resnet101(pretrained=False, pretrained_backbone=pretrained)
         self.model.classifier = DeepLabHead(2048, out_chan)
+        #self.classifier = nn.Conv2d(21, out_chan, kernel_size=1, stride=1, padding=0, bias=False)
         if in_chan != 3:
             self.model.backbone.conv1 = nn.Conv2d(in_chan, 64, kernel_size=7, stride=2, padding=3, bias=False)
     def forward(self, x):
-        return self.model(x)['out']
+        return self.model(x)['out']#self.classifier(self.model(x)['out'])
 
 class densenet50(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
         super(densenet50, self).__init__()
-        self.model = torchvision.models.segmentation.deeplabv3_resnet50(pretrained=pretrained)
+        self.model = torchvision.models.segmentation.deeplabv3_resnet50(pretrained=pretrained, pretrained_backbone=pretrained)
         self.model.classifier = DeepLabHead(2048, out_chan)
         if in_chan != 3:
             self.model.backbone.conv1 = nn.Conv2d(in_chan, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -38,7 +39,7 @@ class densenet50(nn.Module):
 class FCN50(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
         super(FCN50, self).__init__()
-        self.model = torchvision.models.segmentation.fcn_resnet50(pretrained=pretrained)
+        self.model = torchvision.models.segmentation.fcn_resnet50(pretrained=pretrained, pretrained_backbone=pretrained)
         self.model.classifier = FCNHead(2048, out_chan)
         if in_chan != 3:
             self.model.backbone.conv1 = nn.Conv2d(in_chan, 64, kernel_size=7, stride=2, padding=3, bias=False)

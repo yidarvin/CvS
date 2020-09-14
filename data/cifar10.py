@@ -26,7 +26,7 @@ from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
 from .transforms import *
-
+from utils.tools import *
 
 def load_pickle(f):
     version = platform.python_version_tuple()
@@ -59,7 +59,10 @@ def load_CIFAR10_data(path_data=None):
 
 def preproc_CIFAR10_img(img,resize=128):
     img = cv2.resize(img.astype(np.float32), (resize,resize))
-    img = img.astype(np.float32) / 128.0 - 1.0
+    #img = img.astype(np.float32) / 128.0 - 1.0
+    img = img.astype(np.float32) / 255.0
+    img -= np.array([0.485,0.456,0.406]).reshape([1,1,3])
+    img /= np.array([0.229, 0.224, 0.225]).reshape([1,1,3])
     img = img.transpose(2,0,1)
     return img
 
@@ -112,7 +115,8 @@ class cifar10SegmentationDataset(Dataset):
         lab = self.labels[idx]
         seg = cv2.imread(path_seg)[:,:,0]
 
-        img = preproc_CIFAR10_img(img, self.resize)
+        img = prep_torchvision(img,self.resize)
+        #img = np.mean(img,axis=0,keepdims=True)
 
         seg = cv2.resize(seg.astype(np.float32), (self.resize,self.resize))
         seg = (seg > 10) * (lab + 1)
@@ -134,7 +138,8 @@ class cifar10ValidationDataset(Dataset):
         return self.X.shape[0]
     def __getitem__(self,idx):
         img = self.X[idx,:,:,:].transpose(1,2,0)
-        img = preproc_CIFAR10_img(img, self.resize)
+        img = prep_torchvision(img, self.resize)
+        #img = np.mean(img,axis=0,keepdims=True)
 
         seg = (self.Y[idx] + 1) * np.ones((self.resize,self.resize))
         seg = seg.astype(np.int16)

@@ -18,7 +18,7 @@ def main(args):
     Main function to parse arguments.
     """
     # Reading command line arguments into parser.
-    parser = argparse.ArgumentParser(description = "Prepare CIFAR10 data.")
+    parser = argparse.ArgumentParser(description = "Prepare CIFAR100 data.")
 
     # Filepaths
     parser.add_argument("--pData", dest="path_data", type=str, default=None)
@@ -29,8 +29,7 @@ def main(args):
     if not isdir(opts.path_data):
         mkdir(opts.path_data)
 
-    urls = [('https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz', 'cifar-10-python.tar.gz'),
-            ('https://uofi.box.com/shared/static/8sw0gj6d35zgw1z0isi6jy816r6x0g95.zip', 'cifar-10-smalldata-manualseg.zip')]
+    urls = [('https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz', 'cifar-100-python.tar.gz')]
     for url,filename in urls:
         wget.download(url, join(opts.path_data,filename))
     for url,filename in urls:

@@ -39,11 +39,11 @@ def take_one_step(model,X,Y,criterion,phase=None,alpha=1):
         loss += (1-alpha)*criterion(output,torch.argmax(output,dim=1))
         Y_copy = Y.detach().cpu().numpy()
         weight = np.ones_like(Y_copy)
-        for ii in range(Y.size(0)):
-            Y_slice = Y_copy[ii,:,:]
-            boundary = Y_slice > 0
-            boundary = binary_dilation(boundary, iterations=2)
-            weight[ii,:,:] += boundary * 2
+        #for ii in range(Y.size(0)):
+        #    Y_slice = Y_copy[ii,:,:]
+        #    boundary = Y_slice > 0
+        #    boundary = binary_dilation(boundary, iterations=2)
+        #    weight[ii,:,:] += boundary * 2
         loss = torch.mean(loss * torch.from_numpy(weight).float().cuda())
     pred = torch.sum(F.softmax(output,dim=1),dim=(2,3))
     pred = torch.argmax(pred[:,1:],dim=1) + 1
@@ -57,9 +57,10 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     model = nn.DataParallel(model.cuda())
     if path_save != None:
         path_log = join(path_save, name_exp + '.txt')
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.0)
-    #optimizer = optim.SGD(model.parameters(), lr=learning_rate, weight_decay=1e-4, momentum=0.9)
+    #optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=5e-4)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-44)
     #scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
+    scheduler = optim.lr_scheduler.StepLR(optimizer,20,gamma=0.2,last_epoch=-1)
     best_acc = 0.0
 
     for epoch in range(num_epochs):
@@ -98,8 +99,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
                     super_print(path_log,'{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
                 else:
                     print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
-            #if phase == 'train':
-            #    scheduler.step()
+            if phase == 'train':
+                scheduler.step()
             if phase == 'val':
                 if epoch_acc >= best_acc:
                     best_acc = epoch_acc
@@ -112,8 +113,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     time_elapsed = time.time() - since
     if verbose:
         if path_save != None:
-            print(path_log, 'Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-            print(path_log, 'Best val Acc: {:4f}'.format(best_acc))
+            super_print(path_log, 'Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+            super_print(path_log, 'Best val Acc: {:4f}'.format(best_acc))
         else:
             print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
             print('Best val Acc: {:4f}'.format(best_acc))

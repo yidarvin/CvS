@@ -25,11 +25,16 @@ def main(args):
     # Creating Parser Object
     opts = parser.parse_args(args[1:])
 
+    if not isdir(opts.path_data):
+        mkdir(opts.path_data)
+
     urls = ['http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz',
             'http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz',
             'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz',
             'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz']
     for url in urls:
+        print(url)
+        print(opts.path_data)
         wget.download(url, opts.path_data)
     filenames = ['train-images-idx3-ubyte.gz',
                  'train-labels-idx1-ubyte.gz',

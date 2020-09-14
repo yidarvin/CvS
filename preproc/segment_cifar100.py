@@ -1,11 +1,13 @@
 from __future__ import print_function
 from __future__ import division
 
+import argparse
 import copy
 import glob
 import os
 from os import listdir,mkdir,rmdir
 from os.path import join,isdir,isfile
+import sys
 
 import cv2
 import numpy as np
@@ -23,9 +25,13 @@ from torchvision.transforms import functional as func
 from torchvision.models.segmentation.deeplabv3 import DeepLabHead
 from torchvision.models.segmentation.fcn import FCNHead
 
+from data.cifar100 import *
+from engine.architectures import *
+from utils.tools import *
+
 def apply_model_to_img(model,img):
     model = model.cuda().eval()
-    seg = F.softmax(model(torch.from_numpy(img.transpose(2,0,1)).float().unsqueeze(0).cuda()),dim=1)
+    seg = F.softmax(model(torch.from_numpy(img).float().unsqueeze(0).cuda()),dim=1)
     seg = seg[0,:,:,:].detach().cpu().numpy()
     return seg
 
@@ -51,7 +57,7 @@ def main(args):
         if not isdir(path_dir):
             mkdir(path_dir)
 
-    model = densenet101(3, 11, pretrained=False)
+    model = nn.DataParallel(densenet101(3, 11, pretrained=False).cuda())
     best_state_dict = torch.load(opts.path_model)
     model.load_state_dict(best_state_dict)
 
@@ -59,16 +65,17 @@ def main(args):
 
     for ind in range(X.shape[0]):
         img = np.array(X[ind,:,:,:]).transpose(1,2,0) #+ 10*np.random.randn(28,28)
-        img = cv2.resize(img.astype(np.float32), (128,128))
-        img = img.astype(np.float32) / 128.0 - 1.0 #+ np.random.randn(112,112)/10
+        #img = cv2.resize(img.astype(np.float32), (128,128))
+        #img = img.astype(np.float32) / 128.0 - 1.0 #+ np.random.randn(112,112)/10
+        img = prep_torchvision(img, 128)
 
         seg = apply_model_to_img(model,img)
 
         seg_bw = (np.argmax(seg,axis=0) != 0)
         seg_bw = cv2.resize(seg_bw.astype(np.float32), (32,32))
 
-        cv2.imwrite(join(path_save_full,str(Y[ind]),str(ind)+'.png'), X[ind,:,:,:].transpose(1,2,0))
-        cv2.imwrite(join(path_save_full,str(Y[ind]),str(ind)+'seg.png'), (seg_bw*255).astype(np.uint8))
+        cv2.imwrite(join(opts.path_save,str(Y[ind]),str(ind)+'.png'), X[ind,:,:,:].transpose(1,2,0))
+        cv2.imwrite(join(opts.path_save,str(Y[ind]),str(ind)+'seg.png'), (seg_bw*255).astype(np.uint8))
 
 
 if __name__ == "__main__":
