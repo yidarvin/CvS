@@ -57,10 +57,10 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     model = nn.DataParallel(model.cuda())
     if path_save != None:
         path_log = join(path_save, name_exp + '.txt')
-    #optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=5e-4)
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-44)
-    #scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
-    scheduler = optim.lr_scheduler.StepLR(optimizer,20,gamma=0.2,last_epoch=-1)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=5e-4)
+    #optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-44)
+    ##scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
+    #scheduler = optim.lr_scheduler.StepLR(optimizer,20,gamma=0.2,last_epoch=-1)
     best_acc = 0.0
 
     for epoch in range(num_epochs):
@@ -99,8 +99,8 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
                     super_print(path_log,'{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
                 else:
                     print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
-            if phase == 'train':
-                scheduler.step()
+            #if phase == 'train':
+            #    scheduler.step()
             if phase == 'val':
                 if epoch_acc >= best_acc:
                     best_acc = epoch_acc

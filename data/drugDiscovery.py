@@ -32,9 +32,10 @@ from utils.tools import *
 
 
 def preproc_dd_img(img,resize=1080):
-    if img.shape == 3:
+    img = img.astype(np.float32)
+    if len(img.shape) == 3:
         img = np.max(img, axis=2)
-    if resize > img.shape[0] and resize > img.shape[1]:
+    if resize < img.shape[0] and resize < img.shape[1]:
         m,n = img.shape
         ii = np.random.choice(m-resize)
         jj = np.random.choice(n-resize)
@@ -72,6 +73,7 @@ class drugDiscoveryBinaryDataset(Dataset):
                 path_img = join(path_data, name_class, name_img)
                 self.path_imgs.append(path_img)
                 self.labels.append(ii)
+        self.train = train
         self.path_imgs,self.labels = sample_extend_data_dd(self.path_imgs,self.labels,dataset_size)
         self.resize = resize
         self.transform = transform
@@ -80,8 +82,12 @@ class drugDiscoveryBinaryDataset(Dataset):
     def __getitem__(self,idx):
         img = cv2.imread(self.path_imgs[idx])
         lab = self.labels[idx]
+        if self.train:
+            resize = self.resize
+        else:
+            resize = max(img.shape[0],img.shape[1])
         img,seg = preproc_dd_img(img,resize)
-        seg *= float(lab+1)
+        seg *= (lab+1)
         
         sample = {'X': img, 'Y': seg}
         if self.transform:
@@ -93,13 +99,36 @@ class drugDiscoveryBinaryDataset(Dataset):
 def create_dataloaders_dd_binary(path_data='/home/Data/drugDiscovery/train000',
                                  batch_size=4,img_size=1080,dataset_size=1,validation=True):
     data_tr = drugDiscoveryBinaryDataset(path_data, img_size, True, dataset_size,
-                                         transform=transforms.Compose([RandomFlip(),RandomShift(),AddNoise(),ToTensor()]))
-    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)
+                                         transform=transforms.Compose([RandomFlip(),RandomRotate(),RandomShift(),AddNoise(),ToTensor()]))
+    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=8, drop_last=True)
     dataloaders = {}
     dataloaders['train'] = loader_tr
     if validation:
         data_va = drugDiscoveryBinaryDataset(path_data, img_size, False,
                                              transform=transforms.Compose([ToTensor()]))
-        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=0)
+        loader_va = DataLoader(data_va, batch_size=1, shuffle=False, num_workers=0)
         dataloaders['val'] = loader_va
     return dataloaders
+
+
+class drugDiscoveryInferenceDataset(Dataset):
+    def __init__(self, path_data, transform=None):
+        self.path_data = path_data
+        self.path_imgs = [join(path_data, name_img) for name_img in listdir(path_data)]
+        self.transform = transform
+    def __len__(self):
+        return len(self.path_imgs)
+    def __getitem__(self,idx):
+        img = cv2.imread(self.path_imgs[idx])
+        img,seg = preproc_dd_img(img,resize=img.shape[0])
+        
+        sample = {'X': img, 'Y': seg, 'lab': self.path_imgs[idx]}
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+    
+def create_dataloaders_dd_inference(path_data='/home/Data/drugDiscovery/exp000', batch_size=4):
+    data = drugDiscoveryInferenceDataset(path_data, transform=transforms.Compose([ToTensor()]))
+    loader = DataLoader(data, batch_size=batch_size, shuffle=False, num_workers=8, drop_last=False)
+    return loader

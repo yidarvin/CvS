@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 
+import argparse
 import copy
 import glob
 import os
@@ -23,7 +24,7 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from data.durgDiscovery import *
+from data.drugDiscovery import *
 from data.transforms import *
 from engine.architectures import *
 from engine.trainer import *
@@ -52,15 +53,14 @@ def main(args):
 
     in_chan = 1
     out_chan = 3
-    img_size = 1080
+    img_size = 256
     validation   = True
     batch_size   = 4
     dataset_size = 1
-    name_exp = opts.path_data.split('\')[-1] + '_' + opts.name
+    name_exp = 'DrugDiscoveryBinary_' + opts.name
 
     # Create the Dataloaders
-    dataloaders = create_dataloaders_dd_Binary(opts.path_data,opts.path_val,
-                                               batch_size,img_size,dataset_size,validation)
+    dataloaders = create_dataloaders_dd_binary(opts.path_data,batch_size,img_size,dataset_size,validation)
 
     # Create the model
     model = densenet101(in_chan, out_chan, pretrained=False)
