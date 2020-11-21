@@ -43,7 +43,7 @@ def take_one_step(model,X,Y,criterion,phase=None,alpha=1):
         #    Y_slice = Y_copy[ii,:,:]
         #    boundary = Y_slice > 0
         #    boundary = binary_dilation(boundary, iterations=2)
-        #    weight[ii,:,:] += boundary * 2
+        #    weight[ii,:,:] += boundary * 9
         loss = torch.mean(loss * torch.from_numpy(weight).float().cuda())
     pred = torch.sum(F.softmax(output,dim=1),dim=(2,3))
     pred = torch.argmax(pred[:,1:],dim=1) + 1
@@ -57,10 +57,10 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     model = nn.DataParallel(model.cuda())
     if path_save != None:
         path_log = join(path_save, name_exp + '.txt')
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=5e-4)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0)
     #optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-44)
     ##scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
-    #scheduler = optim.lr_scheduler.StepLR(optimizer,20,gamma=0.2,last_epoch=-1)
+    #scheduler = optim.lr_scheduler.StepLR(optimizer,10,gamma=0.1,last_epoch=-1)
     best_acc = 0.0
 
     for epoch in range(num_epochs):
@@ -81,7 +81,7 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
 
             #Iterate over data.
             optimizer.zero_grad()
-            for sample_batch in dataloaders[phase]:
+            for ii,sample_batch in enumerate(dataloaders[phase]):
                 X = sample_batch['X'].cuda()
                 Y = sample_batch['Y'].cuda()
                 acc,loss = take_one_step(model,X,Y,criterion,phase=phase)
@@ -89,6 +89,13 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
                     loss.backward()
                     optimizer.step()
                     optimizer.zero_grad()
+                else:
+                    with torch.set_grad_enabled(False):
+                        out = model(X)
+                        img_save = X.detach().cpu().numpy()[0,0,:,:]
+                        img_save = 1 - (Y.detach().cpu().numpy()[0,:,:] == 0)
+                        seg_save = 1 - (np.argmax(out.detach().cpu().numpy()[0,:,:,:], axis=0) == 0)
+                        cv2.imwrite('/home/darvin/Data/scratch/' + str(ii)+'.png', (np.concatenate([img_save,seg_save],axis=1)*255).astype(np.uint8))
                 running_acc += acc.item() * X.size(0)
                 running_loss += loss.item() * X.size(0)
             epoch_loss = running_loss / len(dataloaders[phase].dataset)

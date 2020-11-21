@@ -29,7 +29,7 @@ class densenet101(nn.Module):
 class densenet50(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
         super(densenet50, self).__init__()
-        self.model = torchvision.models.segmentation.deeplabv3_resnet50(pretrained=pretrained, pretrained_backbone=pretrained)
+        self.model = torchvision.models.segmentation.deeplabv3_resnet50(pretrained=False, pretrained_backbone=pretrained)
         self.model.classifier = DeepLabHead(2048, out_chan)
         if in_chan != 3:
             self.model.backbone.conv1 = nn.Conv2d(in_chan, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -39,7 +39,7 @@ class densenet50(nn.Module):
 class FCN50(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):
         super(FCN50, self).__init__()
-        self.model = torchvision.models.segmentation.fcn_resnet50(pretrained=pretrained, pretrained_backbone=pretrained)
+        self.model = torchvision.models.segmentation.fcn_resnet50(pretrained=False, pretrained_backbone=pretrained)
         self.model.classifier = FCNHead(2048, out_chan)
         if in_chan != 3:
             self.model.backbone.conv1 = nn.Conv2d(in_chan, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -54,7 +54,7 @@ class FPN101(nn.Module):
         return self.model(x)
 
 class GoogLe(nn.Module):
-    def __init__(self, in_chan=3, out_chan=2, dropout=0.0):
+    def __init__(self, in_chan=3, out_chan=2, dropout=0.0, pretrained=None):
         super(GoogLe, self).__init__()
         self.model = GoogLeNet(in_chan, out_chan, dropout)
     def forward(self,x):

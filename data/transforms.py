@@ -64,7 +64,7 @@ class RandomRotate(object):
         return {'X':X, 'Y':Y}
 
 class RandomShift(object):
-    def __init__(self, max_shift=16):
+    def __init__(self, max_shift=32):
         self.max_shift = int(max_shift)
     def __call__(self, sample):
         X,Y = sample['X'],sample['Y']
