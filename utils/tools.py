@@ -20,7 +20,9 @@ def prep_ZeroCenter(img, resize=None):
 def prep_torchvision(img, resize=None):
     img = img.astype(np.float32)
     if resize != None:
-        img = cv2.resize(img, (resize,resize))
+        if img.shape[0] != resize and img.shape[1] != resize:
+            img = cv2.resize(img, (resize,resize))
+    img /= 255
     img -= np.array([0.485, 0.456, 0.406]).reshape([1,1,3])
     img /= np.array([0.229, 0.224, 0.225]).reshape([1,1,3])
     return img.transpose([2,0,1])

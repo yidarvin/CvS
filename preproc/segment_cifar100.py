@@ -57,22 +57,22 @@ def main(args):
         if not isdir(path_dir):
             mkdir(path_dir)
 
-    model = nn.DataParallel(densenet101(3, 11, pretrained=False).cuda())
+    #model = nn.DataParallel(densenet101(3, 11, pretrained=False).cuda())
+    model = nn.DataParallel(wideresnet(3,11,pretrained=False).cuda())
     best_state_dict = torch.load(opts.path_model)
     model.load_state_dict(best_state_dict)
 
     X,Y,_,_,_ = load_CIFAR100_data(path_data=opts.path_data)
 
     for ind in range(X.shape[0]):
-        img = np.array(X[ind,:,:,:]).transpose(1,2,0) #+ 10*np.random.randn(28,28)
-        #img = cv2.resize(img.astype(np.float32), (128,128))
-        #img = img.astype(np.float32) / 128.0 - 1.0 #+ np.random.randn(112,112)/10
-        img = prep_torchvision(img, 128)
+        img = np.array(X[ind,:,:,:]).transpose(1,2,0)
+        img = prep_UnitNorm(img)#,128)
 
         seg = apply_model_to_img(model,img)
 
         seg_bw = (np.argmax(seg,axis=0) != 0)
-        seg_bw = cv2.resize(seg_bw.astype(np.float32), (32,32))
+        if seg_bw.shape[0] != 32 and seg_bw.shape[1] != 32:
+            seg_bw = cv2.resize(seg_bw.astype(np.float32), (32,32))
 
         cv2.imwrite(join(opts.path_save,str(Y[ind]),str(ind)+'.png'), X[ind,:,:,:].transpose(1,2,0))
         cv2.imwrite(join(opts.path_save,str(Y[ind]),str(ind)+'seg.png'), (seg_bw*255).astype(np.uint8))

@@ -50,7 +50,7 @@ class mnistSegmentationDataset(Dataset):
         seg = (img > 0) * (self.labels[idx] + 1)
         seg = seg.astype(np.int16)
 
-        img = img.astype(np.float32) / 128.0 - 1.0 #+ np.random.randn(self.resize,self.resize)/10
+        img = img.astype(np.float32) / 255.0 #+ np.random.randn(self.resize,self.resize)/10
         img = img.reshape([1,img.shape[0],img.shape[1]])
         sample = {'X': img, 'Y': seg}
         if self.transform:
@@ -80,8 +80,8 @@ def create_dataloaders_mnist(path_data='/home/darvin/Data/mnist',batch_size=48,i
     img_tr,lab_tr,img_te,lab_te = load_mnist_data(path_data)
     img_tr,lab_tr = sample_extend_data(img_tr,lab_tr,num_examples,dataset_size)
     data_tr = mnistSegmentationDataset(img_tr, lab_tr, resize=img_size,
-                                       transform=transforms.Compose([RandomShift(),AddNoise(),ToTensor()]))
-    data_va = mnistSegmentationDataset(img_te, lab_te,
+                                       transform=transforms.Compose([RandomTurn(),RandomShiftZoom(int(img_size/4)),AddNoise(),ToTensor()]))
+    data_va = mnistSegmentationDataset(img_te, lab_te,resize=img_size,
                                        transform=transforms.Compose([ToTensor()]))
     loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)
     loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=0)

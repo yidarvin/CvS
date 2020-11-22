@@ -12,7 +12,7 @@ python train_cifar10.py --pData '/home/Data/CIFAR10/cifar-10-smalldata-manualseg
 
 # Segmentation Propagation
 #python preproc/segment_cifar10.py --pData '/home/Data/CIFAR10/cifar-10-batches-py' --pSave '/home/Data/CIFAR10/cifar-10-smalldata-seg1pretrained' --pModel '/home/Models/cifar-10-smalldata-manualseg_1_pretrained_late.pth'
-python preproc/segment_cifar10.py --pData '/home/Data/CIFAR10/cifar-10-batches-py' --pSave '/home/Data/CIFAR10/cifar-10-smalldata-seg10pretrained' --pModel '/home/Models/cifar-10-smalldata-manualseg_10_pretrained_late.pth'
+##python preproc/segment_cifar10.py --pData '/home/Data/CIFAR10/cifar-10-batches-py' --pSave '/home/Data/CIFAR10/cifar-10-smalldata-seg10pretrained' --pModel '/home/Models/cifar-10-smalldata-manualseg_10_pretrained_late.pth'
 ##python preproc/segment_cifar10.py --pData '/home/Data/CIFAR10/cifar-10-batches-py' --pSave '/home/Data/CIFAR10/cifar-10-smalldata-seg100pretrained' --pModel '/home/Models/cifar-100-smalldata-manualseg_100_pretrained_late.pth'
 
 # Train the Networks 1

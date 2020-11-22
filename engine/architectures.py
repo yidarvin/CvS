@@ -14,6 +14,22 @@ from torchvision.models.segmentation.fcn import FCNHead
 
 from .fpn import *
 from .google import *
+from .wrn import *
+from .shake_pyramidnet import *
+
+class shakepyramidnet(nn.Module):
+    def __init__(self, in_chan=3, out_chan=2, pretrained=False):
+        super(shakepyramidnet, self).__init__()
+        self.model = ShakePyramidNet(in_chan=in_chan, depth=272, alpha=200, label=out_chan)
+    def forward(self, x):
+        return self.model(x)
+
+class wideresnet(nn.Module):
+    def __init__(self, in_chan=3, out_chan=2, pretrained=False):
+        super(wideresnet, self).__init__()
+        self.model = Wide_ResNet(in_chan, 28, 20, 0.0, out_chan)
+    def forward(self, x):
+        return self.model(x)
 
 class densenet101(nn.Module):
     def __init__(self, in_chan=3, out_chan=2, pretrained=False):

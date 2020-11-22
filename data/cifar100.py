@@ -26,7 +26,7 @@ from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
 from .transforms import *
-from ..utils.tools import *
+from utils.tools import *
 
 
 def unpickle(file):
@@ -102,7 +102,7 @@ class cifar100SegmentationDataset(Dataset):
                 path_seg = path_img[:-4] + 'seg' + '.png'
                 self.path_imgs.append(path_img)
                 self.path_segs.append(path_seg)
-                self.labels.append(ii)
+                self.labels.append(int(name_class))
         self.path_imgs,self.path_segs,self.labels = sample_extend_data_CIFAR100(self.path_imgs,self.path_segs,self.labels,num_examples,dataset_size)
         self.resize = resize
         self.transform = transform
@@ -114,9 +114,10 @@ class cifar100SegmentationDataset(Dataset):
         lab = self.labels[idx]
         seg = cv2.imread(path_seg)[:,:,0]
 
-        img = prep_torchvision(img, self.resize)
+        img = prep_UnitNorm(img,self.resize)
 
-        seg = cv2.resize(seg.astype(np.float32), (self.resize,self.resize))
+        if seg.shape[0] != self.resize or seg.shape[1] != self.resize:
+            seg = cv2.resize(seg.astype(np.float32), (self.resize,self.resize))
         seg = (seg > 10) * (lab + 1)
         seg = seg.astype(np.int16)
 
@@ -136,7 +137,7 @@ class cifar100ValidationDataset(Dataset):
         return self.X.shape[0]
     def __getitem__(self,idx):
         img = self.X[idx,:,:,:].transpose(1,2,0)
-        img = prep_torchvision(img, self.resize)
+        img = prep_UnitNorm(img, self.resize)
 
         seg = (self.Y[idx] + 1) * np.ones((self.resize,self.resize))
         seg = seg.astype(np.int16)
@@ -150,9 +151,10 @@ class cifar100ValidationDataset(Dataset):
 def create_dataloaders_cifar100(path_data='/home/Data/CIFAR100/cifar-100-smalldata-seg10',
                                 path_val='/home/Data/CIFAR100/cifar-100-python',
                                 batch_size=48,img_size=128,num_examples=10,dataset_size=100,validation=True):
+    shift = int(img_size / 8)
     data_tr = cifar100SegmentationDataset(path_data, img_size, num_examples,dataset_size,
-                                          transform=transforms.Compose([RandomFlip(),RandomShift(),AddNoise(),ToTensor()]))
-    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)
+                                          transform=transforms.Compose([ColorJitter(0.8,0.8,0.8,0.2),RandomFlip(),RandomShiftZoom(max_shift=shift),ToTensor()]))
+    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=8)
     dataloaders = {}
     dataloaders['train'] = loader_tr
     if validation:
@@ -160,6 +162,6 @@ def create_dataloaders_cifar100(path_data='/home/Data/CIFAR100/cifar-100-smallda
         data_va = cifar100ValidationDataset(X_te, Y_te,img_size,
                                            transform=transforms.Compose([ToTensor()]))
 
-        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=0)
+        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=8)
         dataloaders['val'] = loader_va
     return dataloaders

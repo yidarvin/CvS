@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import division
 
+import argparse
 import copy
 import glob
 import os
@@ -23,26 +24,31 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from data.cifar10 import *
+from data.cifar100 import *
 from data.transforms import *
 from engine.architectures import *
 from engine.trainer import *
+
+def weight_init(m):
+    if isinstance(m, nn.Conv2d):
+        torch.nn.init.xavier_uniform_(m.weight.data)
 
 def main(args):
     """
     Main function to parse arguments.
     """
     # Reading command line arguments into parser.
-    parser = argparse.ArgumentParser(description = "Train On CIFAR10 data.")
+    parser = argparse.ArgumentParser(description = "Train On CIFAR100 data.")
 
     # Filepaths
-    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/CIFAR100/cifar-100-smalldata-seg10')
-    parser.add_argument("--pVal", dest="path_val", type=str, default='/home/Data/CIFAR100/cifar-100-python')
+    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/CIFAR10/cifar-100-smalldata-seg100')
+    parser.add_argument("--pVal", dest="path_val", type=str, default='/home/Data/CIFAR10/cifar-100-python')
     parser.add_argument("--pModel", dest="path_model", type=str, default='/home/Models')
     parser.add_argument("--name", dest="name", type=str, default='default')
     parser.add_argument("--numex", dest="num_examples", type=int, default=10)
     parser.add_argument("--lr", dest="lr", type=np.float32, default=3e-5)
     parser.add_argument("--epoch", dest="num_epochs", type=int, default=100)
+    parser.add_argument("--pretrained", dest="pretrained", type=int, default=0)
 
     # Creating Parser Object
     opts = parser.parse_args(args[1:])
@@ -53,18 +59,22 @@ def main(args):
     in_chan = 3
     out_chan = 101
     img_size = 128
-    dataset_size = 100
+    dataset_size = 500
     validation   = True
-    batch_size   = int(np.clip(opts.num_examples,4,128))
-    name_exp = opts.path_data.split('\')[-1] + '_' + str(opts.num_examples) + '_' + opts.name
+    batch_size   = 128#int(np.clip(opts.num_examples,4,128))
+    name_exp = opts.path_data.split("/")[-1] + '_' + str(opts.num_examples) + '_' + opts.name
 
     # Create the Dataloaders
-    dataloaders = create_dataloaders_cifar10(opts.path_data,opts.path_val,
-                                             batch_size,img_size,opts.num_examples,
-                                             dataset_size,validation)
+    dataloaders = create_dataloaders_cifar100(opts.path_data,opts.path_val,
+                                              batch_size,img_size,opts.num_examples,
+                                              dataset_size,validation)
 
     # Create the model
-    model = densenet101(in_chan, out_chan, pretrained=False)
+    #model = wideresnet(in_chan, out_chan, pretrained=(opts.pretrained==1))
+    model = densenet101(in_chan, out_chan, pretrained=(opts.pretrained==1))
+    #model.apply(weight_init)
+    #for param in model.model.backbone.parameters():
+    #    param.requires_grad = False
 
     # Do the training
     model = trainer_CvS(model, dataloaders, opts.path_model, name_exp, opts.lr, opts.num_epochs)

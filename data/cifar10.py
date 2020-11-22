@@ -58,7 +58,8 @@ def load_CIFAR10_data(path_data=None):
     return X_tr,Y_tr,X_te,Y_te,classes
 
 def preproc_CIFAR10_img(img,resize=128):
-    img = cv2.resize(img.astype(np.float32), (resize,resize))
+    if img.shape[0] != resize or img.shape[1] != resize:
+        img = cv2.resize(img.astype(np.float32), (resize,resize))
     #img = img.astype(np.float32) / 128.0 - 1.0
     img = img.astype(np.float32) / 255.0
     img -= np.array([0.485,0.456,0.406]).reshape([1,1,3])
@@ -115,10 +116,10 @@ class cifar10SegmentationDataset(Dataset):
         lab = self.labels[idx]
         seg = cv2.imread(path_seg)[:,:,0]
 
-        img = prep_torchvision(img,self.resize)
-        #img = np.mean(img,axis=0,keepdims=True)
+        img = prep_UnitNorm(img,self.resize)
 
-        seg = cv2.resize(seg.astype(np.float32), (self.resize,self.resize))
+        if seg.shape[0] != self.resize or seg.shape[1] != self.resize:
+            seg = cv2.resize(seg.astype(np.float32), (self.resize,self.resize))
         seg = (seg > 10) * (lab + 1)
         seg = seg.astype(np.int16)
 
@@ -138,8 +139,7 @@ class cifar10ValidationDataset(Dataset):
         return self.X.shape[0]
     def __getitem__(self,idx):
         img = self.X[idx,:,:,:].transpose(1,2,0)
-        img = prep_torchvision(img, self.resize)
-        #img = np.mean(img,axis=0,keepdims=True)
+        img = prep_UnitNorm(img, self.resize)
 
         seg = (self.Y[idx] + 1) * np.ones((self.resize,self.resize))
         seg = seg.astype(np.int16)
@@ -153,9 +153,10 @@ class cifar10ValidationDataset(Dataset):
 def create_dataloaders_cifar10(path_data='/home/Data/CIFAR10/cifar-10-smalldata-manualseg',
                              path_val='/home/Data/CIFAR10/cifar-10-batches-py',
                              batch_size=48,img_size=128,num_examples=10,dataset_size=100,validation=True):
+    shift = int(img_size / 8)
     data_tr = cifar10SegmentationDataset(path_data, img_size, num_examples,dataset_size,
-                                       transform=transforms.Compose([RandomFlip(),RandomShift(),AddNoise(),ToTensor()]))
-    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=0)
+                                       transform=transforms.Compose([RandomTurn(),ColorJitter(.8,.8,.8,.2),RandomFlip(),RandomShiftZoom(max_shift=shift),ToTensor()]))
+    loader_tr = DataLoader(data_tr, batch_size=batch_size, shuffle=True, num_workers=16)
     dataloaders = {}
     dataloaders['train'] = loader_tr
     if validation:
@@ -163,6 +164,6 @@ def create_dataloaders_cifar10(path_data='/home/Data/CIFAR10/cifar-10-smalldata-
         data_va = cifar10ValidationDataset(X_te, Y_te,img_size,
                                            transform=transforms.Compose([ToTensor()]))
 
-        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=0)
+        loader_va = DataLoader(data_va, batch_size=batch_size, shuffle=False, num_workers=16)
         dataloaders['val'] = loader_va
     return dataloaders

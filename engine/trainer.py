@@ -57,10 +57,17 @@ def trainer_CvS(model, dataloaders, path_save=None, name_exp='experiment', learn
     model = nn.DataParallel(model.cuda())
     if path_save != None:
         path_log = join(path_save, name_exp + '.txt')
+<<<<<<< Updated upstream
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=5e-4)
     #optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-44)
     ##scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,5,eta_min=1e-10)
     #scheduler = optim.lr_scheduler.StepLR(optimizer,20,gamma=0.2,last_epoch=-1)
+=======
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    #optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4, nesterov=True)
+    #scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer,25,eta_min=1e-10)
+    scheduler = optim.lr_scheduler.StepLR(optimizer,10,gamma=0.1,last_epoch=-1)
+>>>>>>> Stashed changes
     best_acc = 0.0
 
     for epoch in range(num_epochs):

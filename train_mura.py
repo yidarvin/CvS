@@ -4,7 +4,6 @@ from __future__ import division
 import argparse
 import copy
 import glob
-from mnist import MNIST
 import os
 from os import listdir,mkdir,rmdir
 from os.path import join,isdir,isfile
@@ -25,31 +24,30 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from data.mnist import *
+from data.mura import *
 from data.transforms import *
 from engine.architectures import *
 from engine.trainer import *
 
-
 def weight_init(m):
     if isinstance(m, nn.Conv2d):
         torch.nn.init.xavier_uniform_(m.weight.data)
-
 
 def main(args):
     """
     Main function to parse arguments.
     """
     # Reading command line arguments into parser.
-    parser = argparse.ArgumentParser(description = "Train On MNIST data.")
+    parser = argparse.ArgumentParser(description = "Train On MURA data.")
 
     # Filepaths
-    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/MNIST')
+    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/MURA-v1.1')
     parser.add_argument("--pModel", dest="path_model", type=str, default='/home/Models')
     parser.add_argument("--name", dest="name", type=str, default='default')
     parser.add_argument("--numex", dest="num_examples", type=int, default=10)
     parser.add_argument("--lr", dest="lr", type=np.float32, default=3e-5)
     parser.add_argument("--epoch", dest="num_epochs", type=int, default=100)
+    parser.add_argument("--pretrained", dest="pretrained", type=int, default=1)
 
     # Creating Parser Object
     opts = parser.parse_args(args[1:])
@@ -58,22 +56,24 @@ def main(args):
         mkdir(opts.path_model)
 
     in_chan = 1
-    out_chan = 11
-    img_size = 28#112
+    out_chan = 3
+    img_size = 512
     dataset_size = 1000
     validation   = True
-    batch_size   = 128#int(np.clip(opts.num_examples,4,128))
-    name_exp = opts.path_data.split('/')[-1] + '_' + str(opts.num_examples) + '_' + opts.name
+    batch_size   = 8#int(np.clip(opts.num_examples,4,128))
+    name_exp = opts.path_data.split("/")[-1] + '_' + str(opts.num_examples) + '_' + opts.name
 
     # Create the Dataloaders
-    dataloaders = create_dataloaders_mnist(opts.path_data,
-                                           batch_size,img_size,opts.num_examples,
-                                           dataset_size,validation)
+    dataloaders = create_dataloaders_mura(opts.path_data,
+                                             batch_size,img_size,opts.num_examples,
+                                             dataset_size,validation)
 
     # Create the model
-    model = wideresnet(in_chan, out_chan, pretrained=False)
-    #model = densenet101(in_chan, out_chan, pretrained=True)
+    #model = wideresnet(in_chan, out_chan, pretrained=(opts.pretrained==1))
+    model = densenet101(in_chan, out_chan, pretrained=(opts.pretrained==1))
     #model.apply(weight_init)
+    #for param in model.model.backbone.parameters():
+    #    param.requires_grad = False
 
     # Do the training
     model = trainer_CvS(model, dataloaders, opts.path_model, name_exp, opts.lr, opts.num_epochs)
