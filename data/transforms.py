@@ -128,4 +128,6 @@ class ColorJitter(object):
 class ToTensor(object):
     def __call__(self, sample):
         X,Y = sample['X'], sample['Y']
-        return {'X': torch.from_numpy(X).float(), 'Y': torch.from_numpy(Y).long()}
+        sample['X'] = torch.from_numpy(X).float()
+        sample['Y'] = torch.from_numpy(Y).long()
+        return sample
