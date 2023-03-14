@@ -132,3 +132,8 @@ def create_dataloaders_dd_inference(path_data='/home/Data/drugDiscovery/exp000',
     data = drugDiscoveryInferenceDataset(path_data, transform=transforms.Compose([ToTensor()]))
     loader = DataLoader(data, batch_size=batch_size, shuffle=False, num_workers=8, drop_last=False)
     return loader
+
+
+
+
+

@@ -44,8 +44,8 @@ def main(args):
     parser = argparse.ArgumentParser(description = "Train On MNIST data.")
 
     # Filepaths
-    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/MNIST')
-    parser.add_argument("--pModel", dest="path_model", type=str, default='/home/Models')
+    parser.add_argument("--pData", dest="path_data", type=str, default='/Users/homai/Desktop/CvS/MNIST')
+    parser.add_argument("--pModel", dest="path_model", type=str, default='/Users/homai/Desktop/CvS/Models')
     parser.add_argument("--name", dest="name", type=str, default='default')
     parser.add_argument("--numex", dest="num_examples", type=int, default=10)
     parser.add_argument("--lr", dest="lr", type=np.float32, default=3e-5)
@@ -72,6 +72,7 @@ def main(args):
 
     # Create the model
     model = wideresnet(in_chan, out_chan, pretrained=False)
+    print(model)
     #model = densenet101(in_chan, out_chan, pretrained=True)
     #model.apply(weight_init)
 

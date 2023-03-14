@@ -9,6 +9,7 @@ from os import listdir,mkdir,rmdir
 from os.path import join,isdir,isfile
 from PIL import Image
 import time
+import matplotlib.pyplot as plt
 
 import cv2
 import numpy as np
@@ -24,7 +25,7 @@ import torchvision
 from torchvision import datasets, models, transforms,utils
 from torchvision.transforms import functional as func
 
-from .transforms import *
+from data.transforms import *
 
 HAND_SELECTED_INDS = (51,8,171,50,131,173,62,42,46,43)
 
@@ -34,6 +35,7 @@ def load_mnist_data(path_data=None):
     img_tr,lab_tr = mndata.load_training()
     img_te,lab_te = mndata.load_testing()
     return img_tr,lab_tr,img_te,lab_te
+
 
 class mnistSegmentationDataset(Dataset):
     def __init__(self, images, labels, resize=112, transform=None):
@@ -76,7 +78,7 @@ def sample_extend_data(images,labels,num_examples=9999999999,dataset_size=1):
         labels += labels_tr
     return images,labels
 
-def create_dataloaders_mnist(path_data='/home/darvin/Data/mnist',batch_size=48,img_size=112,num_examples=10,dataset_size=100,validation=True):
+def create_dataloaders_mnist(path_data='/Users/homai/Desktop/CvS/MNIST',batch_size=48,img_size=112,num_examples=10,dataset_size=100,validation=True):
     img_tr,lab_tr,img_te,lab_te = load_mnist_data(path_data)
     img_tr,lab_tr = sample_extend_data(img_tr,lab_tr,num_examples,dataset_size)
     data_tr = mnistSegmentationDataset(img_tr, lab_tr, resize=img_size,
@@ -90,3 +92,9 @@ def create_dataloaders_mnist(path_data='/home/darvin/Data/mnist',batch_size=48,i
     if validation:
         dataloaders['val'] = loader_va
     return dataloaders
+
+
+
+
+
+

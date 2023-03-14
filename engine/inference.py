@@ -47,7 +47,7 @@ def inference_CvS(model, dataloader, path_save='/home/Models', name_exp='experim
         X = sample_batch['X'].cuda()
         lab = sample_batch['lab']
         with torch.set_grad_enabled(False):
-            Y = F.softmax(model(X), dim=1).detach().cpu().numpy()
+            Y = F.softmax(model(X), dim=1).detach().cpu().numpy() # dim: N x c+1 x H x W
         for ii in range(Y.shape[0]):
             name_img = lab[ii]
             pred = Y[ii,:,:,:]
@@ -92,7 +92,6 @@ def inference_CvS(model, dataloader, path_save='/home/Models', name_exp='experim
                 cv2.imwrite(join(path_vis, str(counter) + '.png'), (255*img_sav).astype(np.uint8))
             counter += 1
         print()
-
     return 0
 
 

@@ -39,8 +39,8 @@ def main(args):
     parser = argparse.ArgumentParser(description = "Drug Discovery Experiments.")
 
     # Filepaths
-    parser.add_argument("--pData", dest="path_data", type=str, default='/home/Data/drugDiscovery/exp000')
-    parser.add_argument("--pModel", dest="path_model", type=str, default='/home/Models')
+    parser.add_argument("--pData", dest="path_data", type=str, default='/Users/homai/Desktop/CvS/exp000')
+    parser.add_argument("--pModel", dest="path_model", type=str, default='/Users/homai/Desktop/CvS/Models')
     parser.add_argument("--name", dest="name", type=str, default='default')
 
     # Creating Parser Object
